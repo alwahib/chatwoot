@@ -75,7 +75,10 @@ class DataImportJob < ApplicationJob
     contacts_with_labels.each do |item|
       contact = item[:contact]
       labels = item[:labels]
-      contact.add_labels(labels) if contact.persisted? && labels.present?
+      # After bulk import with synchronize, contact.id is populated for successfully imported records
+      next unless contact.id.present? && labels.present?
+
+      contact.reload.add_labels(labels)
     end
   end
 
