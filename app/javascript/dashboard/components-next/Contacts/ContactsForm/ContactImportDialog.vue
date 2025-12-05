@@ -5,13 +5,11 @@ import { useI18n } from 'vue-i18n';
 
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
-import TagMultiSelectComboBox from 'dashboard/components-next/combobox/TagMultiSelectComboBox.vue';
 
 const emit = defineEmits(['import']);
 const { t } = useI18n();
 
 const uiFlags = useMapGetter('contacts/getUIFlags');
-const allLabels = useMapGetter('labels/getLabels');
 const isImportingContact = computed(() => uiFlags.value.isImporting);
 
 const dialogRef = ref(null);
@@ -19,16 +17,8 @@ const fileInput = ref(null);
 
 const hasSelectedFile = ref(null);
 const selectedFileName = ref('');
-const selectedLabels = ref([]);
 
 const csvUrl = '/downloads/import-contacts-sample.csv';
-
-const labelOptions = computed(() =>
-  allLabels.value?.map(label => ({
-    value: label.title,
-    label: label.title,
-  })) ?? []
-);
 
 const handleFileClick = () => fileInput.value?.click();
 
@@ -58,7 +48,7 @@ const handleRemoveFile = () => {
 
 const uploadFile = async () => {
   if (!hasSelectedFile.value) return;
-  emit('import', { file: hasSelectedFile.value, labels: selectedLabels.value });
+  emit('import', hasSelectedFile.value);
 };
 
 defineExpose({ dialogRef });
@@ -92,7 +82,7 @@ defineExpose({ dialogRef });
       </p>
     </template>
 
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <label class="text-sm text-n-slate-12 whitespace-nowrap">
           {{ t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.LABEL') }}
@@ -131,22 +121,6 @@ defineExpose({ dialogRef });
             />
           </div>
         </div>
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="mb-0.5 text-sm font-medium text-n-slate-12">
-          {{ t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.LABELS.LABEL') }}
-        </label>
-        <TagMultiSelectComboBox
-          v-model="selectedLabels"
-          :options="labelOptions"
-          :placeholder="
-            t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.LABELS.PLACEHOLDER')
-          "
-          class="[&>div>button]:bg-n-alpha-black2"
-        />
-        <p class="mt-1 text-xs text-n-slate-11">
-          {{ t('CONTACTS_LAYOUT.HEADER.ACTIONS.IMPORT_CONTACT.LABELS.HELP') }}
-        </p>
       </div>
     </div>
     <input

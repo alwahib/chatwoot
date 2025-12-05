@@ -318,7 +318,7 @@
         "UNBLOCK_ERROR_MESSAGE": "Unable to unblock contact. Please try again later.",
         "IMPORT_CONTACT": {
           "TITLE": "Import contacts",
-          "DESCRIPTION": "Import contacts through a CSV file.",
+          "DESCRIPTION": "Import contacts through a CSV file. You can include a 'labels' column in your CSV with semicolon-separated labels for each contact.",
           "DOWNLOAD_LABEL": "Download a sample csv.",
           "LABEL": "CSV File:",
           "CHOOSE_FILE": "Choose file",
@@ -326,12 +326,7 @@
           "CANCEL": "Cancel",
           "IMPORT": "Import",
           "SUCCESS_MESSAGE": "You will be notified via email when the import is complete.",
-          "ERROR_MESSAGE": "There was an error, please try again",
-          "LABELS": {
-            "LABEL": "Labels",
-            "PLACEHOLDER": "Select labels to assign",
-            "HELP": "Selected labels will be assigned to all imported contacts."
-          }
+          "ERROR_MESSAGE": "There was an error, please try again"
         },
         "EXPORT_CONTACT": {
           "TITLE": "Export contacts",

@@ -37,7 +37,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_entity and return if params[:import_file].blank?
 
     ActiveRecord::Base.transaction do
-      import = Current.account.data_imports.create!(data_type: 'contacts', labels: import_labels)
+      import = Current.account.data_imports.create!(data_type: 'contacts')
       import.import_file.attach(params[:import_file])
     end
 
@@ -190,12 +190,6 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def process_avatar_from_url
     ::Avatar::AvatarFromUrlJob.perform_later(@contact, params[:avatar_url]) if params[:avatar_url].present?
-  end
-
-  def import_labels
-    return [] if params[:labels].blank?
-
-    Array(params[:labels])
   end
 
   def render_error(error, error_status)

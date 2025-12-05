@@ -150,10 +150,10 @@ export const actions = {
     }
   },
 
-  import: async ({ commit }, { file, labels = [] }) => {
+  import: async ({ commit }, file) => {
     commit(types.SET_CONTACT_UI_FLAG, { isImporting: true });
     try {
-      await ContactAPI.importContacts(file, labels);
+      await ContactAPI.importContacts(file);
       commit(types.SET_CONTACT_UI_FLAG, { isImporting: false });
     } catch (error) {
       commit(types.SET_CONTACT_UI_FLAG, { isImporting: false });

@@ -20,15 +20,15 @@ class DataImportJob < ApplicationJob
 
   def process_import_file
     @data_import.update!(status: :processing)
-    contacts, rejected_contacts = parse_csv_and_build_contacts
+    contacts_with_labels, rejected_contacts = parse_csv_and_build_contacts
 
-    import_contacts(contacts)
-    update_data_import_status(contacts.length, rejected_contacts.length)
+    import_contacts(contacts_with_labels)
+    update_data_import_status(contacts_with_labels.length, rejected_contacts.length)
     save_failed_records_csv(rejected_contacts)
   end
 
   def parse_csv_and_build_contacts
-    contacts = []
+    contacts_with_labels = []
     rejected_contacts = []
     # Ensuring that importing non utf-8 characters will not throw error
     data = @data_import.import_file.download
@@ -40,15 +40,23 @@ class DataImportJob < ApplicationJob
     csv = CSV.parse(clean_data, headers: true)
 
     csv.each do |row|
-      current_contact = @contact_manager.build_contact(row.to_h.with_indifferent_access)
+      row_hash = row.to_h.with_indifferent_access
+      labels = extract_labels(row_hash)
+      current_contact = @contact_manager.build_contact(row_hash.except(:labels))
       if current_contact.valid?
-        contacts << current_contact
+        contacts_with_labels << { contact: current_contact, labels: labels }
       else
         append_rejected_contact(row, current_contact, rejected_contacts)
       end
     end
 
-    [contacts, rejected_contacts]
+    [contacts_with_labels, rejected_contacts]
+  end
+
+  def extract_labels(row_hash)
+    return [] if row_hash[:labels].blank?
+
+    row_hash[:labels].to_s.split(';').map(&:strip).reject(&:blank?)
   end
 
   def append_rejected_contact(row, contact, rejected_contacts)
@@ -56,17 +64,18 @@ class DataImportJob < ApplicationJob
     rejected_contacts << row
   end
 
-  def import_contacts(contacts)
+  def import_contacts(contacts_with_labels)
+    contacts = contacts_with_labels.map { |item| item[:contact] }
     # <struct ActiveRecord::Import::Result failed_instances=[], num_inserts=1, ids=[444, 445], results=[]>
     Contact.import(contacts, synchronize: contacts, on_duplicate_key_ignore: true, track_validation_failures: true, validate: true, batch_size: 1000)
-    apply_labels_to_contacts(contacts)
+    apply_labels_to_contacts(contacts_with_labels)
   end
 
-  def apply_labels_to_contacts(contacts)
-    return if @data_import.labels.blank?
-
-    contacts.each do |contact|
-      contact.add_labels(@data_import.labels) if contact.persisted?
+  def apply_labels_to_contacts(contacts_with_labels)
+    contacts_with_labels.each do |item|
+      contact = item[:contact]
+      labels = item[:labels]
+      contact.add_labels(labels) if contact.persisted? && labels.present?
     end
   end
 
