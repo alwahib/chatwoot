@@ -326,7 +326,12 @@
           "CANCEL": "Cancel",
           "IMPORT": "Import",
           "SUCCESS_MESSAGE": "You will be notified via email when the import is complete.",
-          "ERROR_MESSAGE": "There was an error, please try again"
+          "ERROR_MESSAGE": "There was an error, please try again",
+          "LABELS": {
+            "LABEL": "Labels",
+            "PLACEHOLDER": "Select labels to assign",
+            "HELP": "Selected labels will be assigned to all imported contacts."
+          }
         },
         "EXPORT_CONTACT": {
           "TITLE": "Export contacts",

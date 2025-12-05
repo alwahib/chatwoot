@@ -59,6 +59,15 @@ class DataImportJob < ApplicationJob
   def import_contacts(contacts)
     # <struct ActiveRecord::Import::Result failed_instances=[], num_inserts=1, ids=[444, 445], results=[]>
     Contact.import(contacts, synchronize: contacts, on_duplicate_key_ignore: true, track_validation_failures: true, validate: true, batch_size: 1000)
+    apply_labels_to_contacts(contacts)
+  end
+
+  def apply_labels_to_contacts(contacts)
+    return if @data_import.labels.blank?
+
+    contacts.each do |contact|
+      contact.add_labels(@data_import.labels) if contact.persisted?
+    end
   end
 
   def update_data_import_status(processed_records, rejected_records)
